@@ -6,11 +6,10 @@ import java.io.*;
  * Created by LunaFlores on 12/9/16.
  */
 public class TelematicsImpl implements Telematics {
-
+    private ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public void report(VehicleInfo vehicleInfo) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(vehicleInfo);
         System.out.println(vehicleInfo);
         System.out.println("json" + json);
@@ -26,6 +25,7 @@ public class TelematicsImpl implements Telematics {
         double engineSizeTotal = 0;
 
         File file = new File(".");
+        //everytime we go through loop file is assigned to f
         for (File f : file.listFiles()) {
             if (f.getName().endsWith(".json")) {
                 ++count;
@@ -33,9 +33,11 @@ public class TelematicsImpl implements Telematics {
                 // new FileReader(f)
                 System.out.println(f);
                 try (BufferedReader in = new BufferedReader(new FileReader(f.getName()))) {
+                    //reading the one line and assign to string stringvehicleinfo
                     String stringVehicleinfo = in.readLine();
+                    //desearlizing json string back into vehicleinfo class
                     VehicleInfo vehicleInfo2 = mapper.readValue(stringVehicleinfo, VehicleInfo.class);
-
+                    //totalling for each field add to total
                     odometerTotal += vehicleInfo2.getOdometer();
                     gallonsConsumedTotal += vehicleInfo2.getGallonConsumed();
                     odometerSinceLastOilChangeTotal += vehicleInfo2.getOdometerSinceLastOilChange();
@@ -46,7 +48,7 @@ public class TelematicsImpl implements Telematics {
             }
         }
         System.out.println(count);
-
+        //compute average divide by our count
         System.out.println(odometerTotal);
         double odometerAverage = odometerTotal / count;
         System.out.println(odometerAverage);
@@ -65,14 +67,14 @@ public class TelematicsImpl implements Telematics {
 
         //replace NUM-CARS% with count
 
-
+        //replace symbols with averages
         String tmp = HTML.replace("%NUM-CARS%", Integer.toString(count));
         tmp = tmp.replace("%ODOMETER%", Double.toString(odometerAverage));
         tmp = tmp.replace("%GALLONS-CONSUMED%", Double.toString(gallonsConsumedAverage));
         tmp = tmp.replace("%ODOMETER-OILCHANGE%", Double.toString(odometerSinceLastOilChangeAverage));
         tmp = tmp.replace("%ENGINE-SIZE%", Double.toString(engineSizeAverage));
         System.out.println(tmp);
-
+        //build table for each report
         for (File f : file.listFiles()) {
             if (f.getName().endsWith(".json")) {
                 ++count;
@@ -93,10 +95,10 @@ public class TelematicsImpl implements Telematics {
 
             }
         }
-
+        //concatinate
         String tmp3 = HTMLBOTTOM;
         tmp = tmp + tmp3;
-
+        //create new file dashboard
         try (PrintWriter out = new PrintWriter(new FileWriter("dashboard.html"))) {
             out.println(tmp);
             out.flush();
@@ -136,3 +138,5 @@ public class TelematicsImpl implements Telematics {
             "</html>\n";
 
 }
+
+
